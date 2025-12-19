@@ -21,7 +21,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.use('/img', express.static(__dirname + '/img'));
+app.use(express.static(__dirname));
 app.use(bodyParser.json());
 app.use(cors());
 
