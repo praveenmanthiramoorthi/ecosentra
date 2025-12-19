@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>See Complaints - Civic Engagement</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --orange: #ff9800;
+      --bg: #f7f9fa;
+      --card-bg: #fff;
+      --text-color: #1a335e;
+      --muted-text: #5a7d6f;
+      --hover-bg: #e9f5ea;
+    }
+    body {
+      background: var(--bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 24px 16px;
+      min-height: 100vh;
+      color: var(--text-color);
+    }
+    h1 {
+      text-align: center;
+      color: var(--orange);
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+    .complaints-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .complaint-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 3px 20px rgba(25,116,74,0.12);
+      padding: 20px 25px;
+      display: flex;
+      flex-direction: column;
+    }
+    .complaint-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .complaint-category {
+      font-weight: 700;
+      color: var(--green-700);
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+    .complaint-description {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      flex-grow: 1;
+    }
+    .complaint-location {
+      font-size: 0.9rem;
+      color: var(--muted-text);
+      font-style: italic;
+    }
+    .complaint-status {
+      font-weight: bold;
+      margin-top: 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .status-solved {
+      background-color: #4caf50;
+      color: white;
+    }
+    .status-pending {
+      background-color: #ff9800;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>All Submitted Complaints</h1>
+
+  <div class="complaints-list" id="complaints-list">
+    <!-- Complaints will be rendered here dynamically -->
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    const complaintsList = document.getElementById('complaints-list');
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        loadAllComplaints();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function loadAllComplaints() {
+      db.collection("complaints").orderBy("timestamp", "desc").get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            complaintsList.innerHTML = '<p>No complaints have been submitted yet.</p>';
+            return;
+          }
+          querySnapshot.forEach((doc) => {
+            const complaint = doc.data();
+            const card = document.createElement('div');
+            card.className = 'complaint-card';
+
+            const statusClass = complaint.status === 'solved' ? 'status-solved' : 'status-pending';
+
+            card.innerHTML = `
+              <img src="${complaint.imageUrl}" alt="Complaint Image">
+              <div class="complaint-category">${complaint.category}</div>
+              <p class="complaint-description">${complaint.description}</p>
+              <div class="complaint-location"><strong>Location:</strong> ${complaint.location}</div>
+              <div class="complaint-status ${statusClass}">${complaint.status}</div>
+            `;
+            complaintsList.appendChild(card);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching complaints: ", error);
+          complaintsList.innerHTML = '<p>Error loading complaints. Please try again later.</p>';
+        });
+    }
+  </script>
+</body>
+</html>

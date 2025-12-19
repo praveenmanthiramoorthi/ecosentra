@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home Civic Engagement Home</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --muted: #f4edea;
+      --card-start: #fff7e3;
+      --card-end: #e0f7e8;
+      --bg-orange: #ff9800;
+      --bg-green: #4caf50;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(120deg, var(--bg-orange) 0%, var(--bg-green) 100%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 36px 18px 36px;
+      background: rgba(255, 255, 255, 0.82);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 0 2px 20px rgba(255, 152, 0, 0.08);
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    header h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--bg-orange);
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--green-700);
+      letter-spacing: 0.2px;
+    }
+
+    .user-id {
+      font-size: 1rem;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--bg-orange) 45%, var(--bg-green) 100%);
+      border-radius: 15px;
+      padding: 5px 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(32, 68, 94, 0.04), 0 0 0 3px rgba(76, 175, 80, 0.15);
+    }
+
+    .cards-container {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: stretch;
+      padding: 48px 5vw 120px 5vw;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    a.action-card {
+      text-decoration: none;
+      color: inherit;
+      background: linear-gradient(120deg, var(--card-start) 60%, var(--card-end) 100%);
+      border-radius: 18px;
+      min-width: 220px;
+      max-width: 270px;
+      flex: 1 1 220px;
+      box-shadow: 0 3px 15px rgba(32, 68, 94, 0.07);
+      padding: 32px 22px 24px 22px;
+      text-align: center;
+      transition: box-shadow 0.18s, transform 0.18s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      outline: none;
+    }
+
+    a.action-card:focus,
+    a.action-card:hover {
+      box-shadow: 0 10px 30px rgba(255, 152, 0, 0.15);
+      transform: translateY(-6px) scale(1.02);
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 18px;
+      color: var(--bg-orange);
+      text-shadow: 1px 2px 4px var(--bg-green), 0 0 2px #e0e0e0;
+    }
+
+    .action-card h2 {
+      font-size: 1.4rem;
+      color: var(--bg-green);
+      margin: 0 0 10px 0;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .action-card p {
+      margin: 0;
+      color: var(--green-700);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      letter-spacing: 0.1px;
+    }
+
+    /* Bottom navigation */
+    .bottom-nav {
+      width: 100%;
+      background: #fff;
+      border-top: 1.5px solid #e6eaea;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 70px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 12;
+      box-shadow: 0 -3px 10px rgba(255, 152, 0, 0.08);
+    }
+
+    .nav-item {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--bg-green);
+      font-size: 1.06rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.19s;
+      padding: 7px 0 0 0;
+    }
+
+    .nav-item.active,
+    .nav-item:focus,
+    .nav-item:hover {
+      color: var(--bg-orange);
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      font-size: 1.6rem;
+      margin-bottom: 3px;
+    }
+
+    /* Circular "Add" emphasized */
+    .nav-item.add {
+      position: absolute;
+      /* float above navigation */
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      /* full circle */
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #744bda;
+      font-size: 2.3rem;
+      font-weight: bold;
+      box-shadow: 0 8px 24px rgba(80, 80, 80);
+      border: none;
+      padding: 0;
+      /* ensure no padding */
+      z-index: 20;
+    }
+
+    /* Optional: Hover style for depth */
+    .nav-item.add:hover,
+    .nav-item.add:focus {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.30);
+      outline: none;
+    }
+
+
+    .nav-item.add:hover,
+    .nav-item.add:focus {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      outline: none;
+    }
+
+    @media (max-width: 900px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        padding: 35px 2vw 140px 2vw;
+      }
+
+      header {
+        padding: 20px 18px;
+      }
+
+      .welcome-container {
+        align-items: flex-start;
+      }
+    }
+
+    /* Dropdown Overlay and Menu */
+    .dropdown-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.45);
+      display: none;
+      /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .dropdown-menu {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 30px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      min-width: 220px;
+    }
+
+    .dropdown-item {
+      font-size: 1.1rem;
+      color: var(--green-700, #19744a);
+      margin: 12px 0;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .dropdown-item:hover {
+      color: var(--bg-orange, #ff9800);
+      outline: none;
+    }
+
+    /* Show overlay when active */
+    .dropdown-overlay.active {
+      display: flex;
+    }
+
+    /* 🔥 Moving transparent overlay */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(25deg);
+      animation: moveOverlay 12s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes moveOverlay {
+      0% {
+        transform: translateX(-80%) rotate(25deg);
+      }
+
+      100% {
+        transform: translateX(80%) rotate(25deg);
+      }
+    }
+
+    /* Make sure your actual content stays above overlay */
+    header,
+    .cards-container,
+    .bottom-nav {
+      position: relative;
+      z-index: 1;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 1;
+    }
+
+    .admin-id {
+      font-size: 1rem;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--bg-orange) 45%, var(--bg-green) 100%);
+      border-radius: 15px;
+      padding: 5px 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(32, 68, 94, 0.04), 0 0 0 3px rgba(76, 175, 80, 0.15);
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s, transform 0.2s;
+      border: none;
+      /* remove default button border */
+      cursor: pointer;
+      /* make it clear it’s clickable */
+      font-family: inherit;
+      /* keep consistent font */
+    }
+
+    .admin-id:hover {
+      background: linear-gradient(135deg, var(--bg-green) 45%, var(--bg-orange) 100%);
+      transform: scale(1.05);
+      text-decoration: none;
+    }
+
+    .complaint-card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .complaint-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .complaint-card h3 {
+      color: #1b5e20;
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+
+    .complaint-card p {
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <header>
+    <!-- 🔥 Moving background overlay -->
+    <div class="background-overlay"></div>
+    <div class="welcome-container">
+      <h1>Welcome To Civic Reporting System</h1>
+      <p>Report, rate, and improve civic services with ease</p>
+    </div>
+    <button class="admin-id" id="user-info" onclick="window.location.href='profile.html'">User: ...</button>
+  </header>
+
+  <section class="cards-container" id="complaints-container" aria-label="Complaints">
+    <!-- Complaints will be loaded here -->
+  </section>
+
+  <nav class="bottom-nav" aria-label="Bottom navigation">
+    <a href="index.html" class="nav-item active" aria-label="Home">
+      <div class="nav-icon">🏠</div>
+      Home
+    </a>
+    <a href="about-us.html" class="nav-item" aria-label="About Us">
+      <div class="nav-icon">👥</div>
+      About Us
+    </a>
+    <div class="nav-item add" id="addMenuBtn" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false"
+      aria-label="Add new content menu">
+      <div class="nav-icon">➕</div>
+    </div>
+
+
+    <a href="Notifications.html" class="nav-item" aria-label="Notifications">
+      <div class="nav-icon">🔔</div>
+      Notifications
+    </a>
+    <a href="profile.html" class="nav-item" aria-label="Profile">
+      <div class="nav-icon">👤</div>
+      Profile
+    </a>
+  </nav>
+  <!-- Dropdown overlay and menu for Add -->
+  <div id="dropdownOverlay" class="dropdown-overlay" aria-hidden="true" tabindex="-1">
+    <div class="dropdown-menu" role="menu" aria-labelledby="addMenuBtn" tabindex="0">
+      <a href="post-complaint.html" class="dropdown-item" role="menuitem" tabindex="0">
+        Post a Complaint
+      </a>
+      <a href="review-complaint.html" class="dropdown-item" role="menuitem" tabindex="0">
+        Review Posted Complaint
+      </a>
+      <a href="feedback.html" class="dropdown-item" role="menuitem" tabindex="0">
+        Add Feedback
+      </a>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+
+  <script>
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        // User is signed in.
+        db.collection("users").doc(user.uid).get().then((doc) => {
+          if (doc.exists) {
+            document.getElementById("user-info").innerText = "User: " + doc.data().fullname;
+          } else {
+            console.log("No such document!");
+          }
+        }).catch((error) => {
+          console.log("Error getting document:", error);
+        });
+        loadComplaints();
+      } else {
+        // No user is signed in.
+        window.location.href = 'login.html';
+      }
+    });
+
+    function loadComplaints() {
+      const complaintsContainer = document.getElementById('complaints-container');
+      // Use onSnapshot for real-time updates
+      db.collection("complaints").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
+        complaintsContainer.innerHTML = ""; // Clear existing content
+        if (querySnapshot.empty) {
+          complaintsContainer.innerHTML = "<p style='text-align:center; width:100%; color:#fff;'>No complaints found. Be the first to post!</p>";
+          return;
+        }
+        querySnapshot.forEach((doc) => {
+          const complaint = doc.data();
+          const complaintCard = `
+                    <div class="complaint-card">
+                        <h3>${complaint.category}</h3>
+                        <p>${complaint.description}</p>
+                        <img src="${complaint.imageUrl}" alt="Complaint Image">
+                        <p><strong>Location:</strong> ${complaint.location}</p>
+                        <p><strong>Status:</strong> ${complaint.status}</p>
+                    </div>
+                `;
+          complaintsContainer.innerHTML += complaintCard;
+        });
+      }, (error) => {
+        console.error("Error getting documents: ", error);
+      });
+    }
+
+    document.querySelectorAll('a.action-card').forEach(a => {
+      a.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          a.click();
+        }
+      });
+    });
+  </script>
+  <script>
+    const addMenuBtn = document.getElementById('addMenuBtn');
+    const dropdownOverlay = document.getElementById('dropdownOverlay');
+
+    function toggleDropdown(show) {
+      if (show === undefined) {
+        show = !dropdownOverlay.classList.contains('active');
+      }
+      dropdownOverlay.classList.toggle('active', show);
+      addMenuBtn.setAttribute('aria-expanded', show);
+
+      if (show) {
+        const firstItem = dropdownOverlay.querySelector('.dropdown-item');
+        if (firstItem) firstItem.focus();
+      } else {
+        addMenuBtn.focus();
+      }
+    }
+
+    addMenuBtn.addEventListener('click', () => toggleDropdown());
+
+    addMenuBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleDropdown();
+      }
+    });
+
+    dropdownOverlay.addEventListener('click', (e) => {
+      if (e.target === dropdownOverlay) {
+        toggleDropdown(false);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && dropdownOverlay.classList.contains('active')) {
+        toggleDropdown(false);
+      }
+    });
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggleDropdown(false);
+          addMenuBtn.focus();
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Notifications</title>
+  <style>
+    :root{
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --card-start: #fff7e3;
+      --card-end: #e0f7e8;
+      --bg-orange: #ff9800;
+      --bg-green: #4caf50;
+      --white: #fff;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(120deg, var(--bg-orange) 0%, var(--bg-green) 100%);
+    }
+
+    header {
+      padding: 20px;
+      background: rgba(255,255,255,0.85);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 0 2px 20px rgba(255,152,0,0.1);
+      position: relative;
+      z-index: 1;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--bg-orange);
+    }
+
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(25deg);
+      animation: moveOverlay 12s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+    @keyframes moveOverlay {
+      0%   { transform: translateX(-80%) rotate(25deg); }
+      100% { transform: translateX(80%) rotate(25deg); }
+    }
+
+    .notifications-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .notification-card {
+      background: linear-gradient(120deg, var(--card-start) 60%, var(--card-end) 100%);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 3px 12px rgba(32,68,94,0.08);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .notification-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(32,68,94,0.12);
+    }
+    .notification-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--green-700);
+      margin-bottom: 4px;
+    }
+    .notification-time {
+      font-size: 0.85rem;
+      color: var(--bg-orange);
+      font-weight: 600;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90%;
+      overflow-y: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      color: var(--bg-green);
+    }
+    .modal-content p { margin: 8px 0; }
+    .modal-content img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-overlay"></div>
+  <header>
+    <h1>Admin Notifications</h1>
+  </header>
+
+  <div class="notifications-container" id="notifications-container">
+    <!-- Notifications will be loaded here -->
+  </div>
+
+  <!-- Modal -->
+  <div id="notificationModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modal-title"></h2>
+      <p><strong>Time:</strong> <span id="modal-time"></span></p>
+      <p id="modal-details"></p>
+      <img id="modal-image" src="" alt="Complaint Image">
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    const notificationsContainer = document.getElementById("notifications-container");
+    const modal = document.getElementById("notificationModal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalTime = document.getElementById("modal-time");
+    const modalDetails = document.getElementById("modal-details");
+    const modalImage = document.getElementById("modal-image");
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) { // Simplified check, assumes any logged-in user is an admin for this page
+        loadRecentComplaints();
+      } else {
+        window.location.href = 'admin-login.html';
+      }
+    });
+
+    function loadRecentComplaints() {
+        db.collection("complaints").where("status", "==", "pending")
+          .orderBy("timestamp", "desc").limit(10).get()
+          .then(querySnapshot => {
+            if (querySnapshot.empty) {
+                notificationsContainer.innerHTML = '<p>No new notifications.</p>';
+                return;
+            }
+            querySnapshot.forEach(doc => {
+                const complaint = doc.data();
+                const card = document.createElement('div');
+                card.className = 'notification-card';
+                
+                const complaintDate = complaint.timestamp.toDate();
+                const formattedTime = complaintDate.toLocaleString();
+
+                card.innerHTML = `
+                    <div class="notification-title">New Complaint: ${complaint.category}</div>
+                    <div class="notification-time">${formattedTime}</div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    modalTitle.textContent = `New Complaint: ${complaint.category}`;
+                    modalTime.textContent = formattedTime;
+                    modalDetails.innerHTML = `<strong>Description:</strong> ${complaint.description}<br><strong>Location:</strong> ${complaint.location}`;
+                    modalImage.src = complaint.imageUrl;
+                    modal.classList.add("active");
+                });
+
+                notificationsContainer.appendChild(card);
+            });
+          })
+          .catch(error => {
+              console.error("Error fetching notifications: ", error);
+              notificationsContainer.innerHTML = '<p>Error loading notifications.</p>';
+          });
+    }
+    
+    // Close modal when clicking outside
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.remove("active");
+    });
+  </script>
+</body>
+</html>

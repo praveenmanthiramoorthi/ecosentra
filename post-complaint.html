@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post a Complaint</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9800, #4caf50);
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Transparent moving overlay */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(25deg);
+      animation: moveOverlay 10s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes moveOverlay {
+      0% {
+        transform: translateX(-50%) rotate(25deg);
+      }
+
+      100% {
+        transform: translateX(0%) rotate(25deg);
+      }
+    }
+
+    .form-container {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      margin: 0 auto 40px auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      text-align: center;
+      color: #1b5e20;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1b5e20;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #388e3c;
+    }
+
+    #map {
+      width: 100%;
+      height: 250px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .toggle-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #1b5e20;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-btn.active {
+      background: #ff9800;
+      color: #fff;
+      cursor: not-allowed;
+    }
+
+    #preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="background-overlay"></div>
+
+  <div class="form-container">
+    <h2>Post a Complaint</h2>
+
+    <label for="category">Complaint Category</label>
+    <select id="category" required>
+      <option value="">-- Select a category --</option>
+      <option>Garbage</option>
+      <option>Road Damage</option>
+      <option>Water Supply</option>
+      <option>Public Toilet</option>
+      <option>Other</option>
+    </select>
+
+    <label for="complaint-date">Date of Complaint</label>
+    <input type="date" id="complaint-date" name="complaint-date" required>
+
+    <label for="location">Location</label>
+    <input type="text" id="location" placeholder="Enter location manually" required>
+    <button type="button" onclick="useMyLocation()">📍 Use My Location</button>
+
+    <div id="map">Google Map API placeholder (Pin location here)</div>
+
+    <label for="description">Description</label>
+    <textarea id="description" placeholder="Describe the issue..." required></textarea>
+
+    <label for="photo">Upload Photo</label>
+    <input type="file" id="photo" accept="image/*" onchange="previewImage(event)" required>
+    <img id="preview" alt="Preview">
+
+    <button type="button" class="toggle-btn" id="anonBtn" onclick="toggleAnonymous()">Post Anonymous</button>
+
+    <button type="button" id="submitBtn" onclick="submitComplaint()">Submit Complaint</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    let isAnonymous = false;
+
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (!user) {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function toggleAnonymous() {
+      let btn = document.getElementById("anonBtn");
+      if (!isAnonymous) {
+        btn.classList.add("active");
+        btn.innerText = "Posting Anonymously ✅";
+        isAnonymous = true;
+        alert("You are posting anonymously.");
+      }
+    }
+
+    function previewImage(event) {
+      let preview = document.getElementById("preview");
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.style.display = "block";
+    }
+
+    function useMyLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          document.getElementById("location").value =
+            "Lat: " + pos.coords.latitude.toFixed(5) +
+            ", Lng: " + pos.coords.longitude.toFixed(5);
+          alert("Location fetched ✅");
+        }, () => {
+          alert("Unable to fetch location ❌");
+        });
+      } else {
+        alert("Geolocation not supported");
+      }
+    }
+
+    async function submitComplaint() {
+      const submitButton = document.getElementById("submitBtn");
+      submitButton.disabled = true;
+      submitButton.innerText = "Submitting...";
+
+      const category = document.getElementById("category").value;
+      const date = document.getElementById("complaint-date").value;
+      const location = document.getElementById("location").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const photo = document.getElementById("photo").files[0];
+      const user = firebase.auth().currentUser;
+
+      if (!category || !date || !location || !description || !photo) {
+        alert("❌ Please fill in all fields before submitting.");
+        submitButton.disabled = false;
+        submitButton.innerText = "Submit Complaint";
+        return;
+      }
+
+      // --- CONFIGURATION ---
+      const imgbbApiKey = "738c4e15e92562409e32956f554d3217"; // ImgBB API Key
+      // ---------------------
+
+      const formData = new FormData();
+      formData.append('image', photo);
+
+      try {
+        // Step 1: Upload image directly to ImgBB
+        const uploadResponse = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('ImgBB upload failed');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        const imageUrl = uploadResult.data.url; // ImgBB returns the URL here
+
+        // Step 2: Save complaint data to Firestore
+        await db.collection("complaints").add({
+          category: category,
+          date: date,
+          location: location,
+          description: description,
+          imageUrl: imageUrl, // Save the ImgBB URL
+          userId: isAnonymous ? "anonymous" : user.uid,
+          status: "pending",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("Complaint Submitted Successfully!");
+        window.location.href = "home.html";
+
+      } catch (error) {
+        console.error("Error submitting complaint: ", error);
+        alert("Error: " + error.message);
+        submitButton.disabled = false;
+        submitButton.innerText = "Submit Complaint";
+      }
+    }
+  </script>
+
+</body>
+
+</html>

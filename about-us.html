@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us - Civic Engagement Team</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --muted: #5a7d6f;
+      --bg: #f7f9fa;
+      --orange: #ff9800;
+      --card-gradient-start: #fff9e7;
+      --card-gradient-end: #d1ffd1;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--green-700);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 15px;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      color: var(--orange);
+      text-align: center;
+    }
+
+    p.subtitle {
+      font-weight: 500;
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 40px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 28px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .member-card {
+      background: linear-gradient(135deg, var(--card-gradient-start), var(--card-gradient-end));
+      border-radius: 16px;
+      padding: 32px 20px;
+      box-shadow: 0 3px 15px rgba(25, 116, 74, 0.12);
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .member-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(25, 116, 74, 0.22);
+    }
+
+    .member-photo {
+      width: 88px;
+      height: 88px;
+      background: var(--green-600);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--card-gradient-start);
+      font-weight: 700;
+      font-size: 2rem;
+      user-select: none;
+    }
+
+    .member-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--green-700);
+      margin-bottom: 6px;
+    }
+
+    .member-role {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .team-description {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      max-width: 750px;
+      margin: 24px auto 60px;
+      color: var(--green-600);
+      text-align: center;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .team-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Team Heisen</h1>
+  <p class="subtitle">
+    We are a dedicated group of six passionate individuals committed to civic engagement, innovation, and community
+    improvement.
+  </p>
+  <div class="team-grid" role="list" aria-label="Our team members">
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">N</div>
+      <div class="member-name">Nidhin</div>
+    </div>
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">R</div>
+      <div class="member-name">Rajaram</div>
+    </div>
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">M</div>
+      <div class="member-name">Malavika</div>
+    </div>
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">M</div>
+      <div class="member-name">Miju Akshaya</div>
+    </div>
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">K</div>
+      <div class="member-name">Kiruthika Devi</div>
+    </div>
+    <div class="member-card" role="listitem">
+      <div class="member-photo" aria-hidden="true">P</div>
+      <div class="member-name">Praveen</div>
+    </div>
+  </div>
+  <p class="team-description">
+    Together, we blend diverse skills and creativity to build impactful digital experiences that empower citizens and
+    strengthen communities.
+  </p>
+</body>
+
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Registration - Civic Issue Reporter</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9800, #4caf50); /* orange to green */
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .register-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .register-container h2 {
+      margin-bottom: 20px;
+      color: #1b5e20;
+    }
+
+    .register-container input,
+    .register-container select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .register-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: #1b5e20;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .register-container button:hover {
+      background: #388e3c;
+    }
+
+    .register-container a {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #1b5e20;
+      text-decoration: none;
+    }
+
+    .register-container a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+     #recaptcha-container {
+        margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Admin Registration</h2>
+
+    <!-- Full Name -->
+    <input type="text" id="fullname" placeholder="Enter Full Name">
+
+    <!-- Work Email -->
+    <input type="email" id="email" placeholder="Enter Work Email">
+
+    <!-- Mobile Number -->
+    <input type="tel" id="mobile" placeholder="Enter Mobile Number" maxlength="10">
+    <div id="recaptcha-container"></div>
+    <button id="getOtpBtn" onclick="getOTP()">Get OTP</button>
+
+    <!-- Department Dropdown -->
+    <select id="department">
+      <option value="">Select Department</option>
+      <option value="Sanitation">Sanitation</option>
+      <option value="Water Supply">Water Supply</option>
+      <option value="Roads">Roads</option>
+      <option value="Public Health">Public Health</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <!-- OTP Section -->
+    <div id="otpSection" class="hidden">
+      <input type="text" id="otp" placeholder="Enter OTP" maxlength="6">
+      <button onclick="register()">Register</button>
+      <a href="#" onclick="resendOTP()">Resend OTP</a>
+    </div>
+
+    <a href="admin-login.html">Already have an account? Login</a>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+            // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+    });
+
+    function getOTP() {
+      const fullname = document.getElementById("fullname").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const dept = document.getElementById("department").value;
+
+      if (!fullname) {
+        alert("Please enter your full name.");
+        return;
+      }
+      if (!email.includes("@")) {
+        alert("Please enter a valid work email.");
+        return;
+      }
+      if (mobile.length !== 10) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+      if (!dept) {
+        alert("Please select a department.");
+        return;
+      }
+
+      const phoneNumber = "+91" + mobile;
+      const appVerifier = window.recaptchaVerifier;
+      firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then((confirmationResult) => {
+            window.confirmationResult = confirmationResult;
+            document.getElementById("getOtpBtn").classList.add("hidden");
+            document.getElementById("otpSection").classList.remove("hidden");
+            alert("OTP sent to " + phoneNumber);
+        }).catch((error) => {
+            console.error(error);
+            alert("Error sending OTP. Please try again.");
+            grecaptcha.reset(window.recaptchaWidgetId);
+        });
+    }
+
+    function register() {
+      const otp = document.getElementById("otp").value;
+      const fullname = document.getElementById("fullname").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const dept = document.getElementById("department").value;
+
+      if (otp.length !== 6) {
+        alert("Invalid OTP ❌");
+        return;
+      }
+
+      window.confirmationResult.confirm(otp).then((result) => {
+        const user = result.user;
+        // Add admin data to Firestore
+        db.collection("admins").doc(user.uid).set({
+            fullname: fullname,
+            email: email,
+            mobile: mobile,
+            department: dept,
+            uid: user.uid
+        }).then(() => {
+            alert("Admin Registration Successful!");
+            window.location.href = "admin-login.html";
+        }).catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+      }).catch((error) => {
+        console.error(error);
+        alert("Invalid OTP. Please try again.");
+      });
+    }
+
+    function resendOTP() {
+      getOTP();
+    }
+  </script>
+</body>
+</html>

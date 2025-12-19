@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Role - Civic Issue Reporter</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9800, #4caf50);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #1b5e20;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: #1b5e20;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            background: #388e3c;
+        }
+
+        .btn-admin {
+            background: #e65100;
+        }
+
+        .btn-admin:hover {
+            background: #ef6c00;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Select Role</h2>
+        <a href="login.html" class="btn">Sign in as User</a>
+        <a href="admin-login.html" class="btn btn-admin">Sign in as Admin</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Home - Civic Reporting</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --card-start: #fff7e3;
+      --card-end: #e0f7e8;
+      --bg-orange: #ff9800;
+      --bg-green: #4caf50;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(120deg, var(--bg-orange) 0%, var(--bg-green) 100%);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 36px 18px 36px;
+      background: rgba(255, 255, 255, 0.82);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 0 2px 20px rgba(255, 152, 0, 0.08);
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    header h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--bg-orange);
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--green-700);
+      letter-spacing: 0.2px;
+    }
+
+    .admin-id {
+      font-size: 1rem;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--bg-orange) 45%, var(--bg-green) 100%);
+      border-radius: 15px;
+      padding: 5px 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(32, 68, 94, 0.04), 0 0 0 3px rgba(76, 175, 80, 0.15);
+      text-decoration: none;
+      /* remove underline */
+      display: inline-block;
+      /* make it behave like a button */
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .admin-id:hover {
+      background: linear-gradient(135deg, var(--bg-green) 45%, var(--bg-orange) 100%);
+      transform: scale(1.05);
+      text-decoration: none;
+      /* no underline even on hover */
+    }
+
+    .cards-container {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: stretch;
+      padding: 48px 5vw 120px 5vw;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    a.action-card {
+      text-decoration: none;
+      color: inherit;
+      background: linear-gradient(120deg, var(--card-start) 60%, var(--card-end) 100%);
+      border-radius: 18px;
+      min-width: 220px;
+      max-width: 270px;
+      flex: 1 1 220px;
+      box-shadow: 0 3px 15px rgba(32, 68, 94, 0.07);
+      padding: 32px 22px 24px 22px;
+      text-align: center;
+      transition: box-shadow 0.18s, transform 0.18s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    a.action-card:hover {
+      box-shadow: 0 10px 30px rgba(255, 152, 0, 0.15);
+      transform: translateY(-6px) scale(1.02);
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 18px;
+      color: var(--bg-orange);
+      text-shadow: 1px 2px 4px var(--bg-green), 0 0 2px #e0e0e0;
+    }
+
+    .action-card h2 {
+      font-size: 1.4rem;
+      color: var(--bg-green);
+      margin: 0 0 10px 0;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .action-card p {
+      margin: 0;
+      color: var(--green-700);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    /* Moving overlay */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(25deg);
+      animation: moveOverlay 12s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes moveOverlay {
+      0% {
+        transform: translateX(-80%) rotate(25deg);
+      }
+
+      100% {
+        transform: translateX(80%) rotate(25deg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        padding: 35px 2vw 100px 2vw;
+      }
+
+      header {
+        padding: 20px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🔥 Moving overlay -->
+  <div class="background-overlay"></div>
+
+  <header>
+    <div class="welcome-container">
+      <h1>Welcome Admin</h1>
+      <p>Monitor and manage civic complaints</p>
+    </div>
+    <a href="admin-profile.html" class="admin-id">Admin: civic-admin</a>
+  </header>
+
+
+  <section class="cards-container">
+    <a class="action-card" href="complaints-to-be-solved.html">
+      <div class="card-icon">📝</div>
+      <h2>Complaints to be Solved</h2>
+      <p>Pending issues by citizens</p>
+    </a>
+    <a class="action-card" href="recently-solved.html">
+      <div class="card-icon">✅</div>
+      <h2>Recently Solved</h2>
+      <p>View latest resolved complaints</p>
+    </a>
+    <a class="action-card" href="Solved-Stats.html">
+      <div class="card-icon">📊</div>
+      <h2>Solved Stats</h2>
+      <p>Performance and progress</p>
+    </a>
+    <a class="action-card" href="admin-notifications.html">
+      <div class="card-icon">🔔</div>
+      <h2>Notifications</h2>
+      <p>Updates and alerts</p>
+    </a>
+  </section>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="firebase-client.js"></script>
+  <script>
+    firebase.auth().onAuthStateChanged(function (user) {
+      // For now, allow any logged in user to access admin home for testing
+      if (!user) {
+        window.location.href = 'admin-login.html';
+      }
+    });
+  </script>
+</body>
+
+</html>

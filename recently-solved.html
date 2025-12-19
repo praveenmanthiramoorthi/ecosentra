@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recently Solved Complaints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #ff9800 0%, #4caf50 100%);
+            padding: 20px;
+        }
+
+        .complaint-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .complaint-card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .complaint-card h3 {
+            color: #1b5e20;
+            margin-top: 0;
+        }
+
+        .status-solved {
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Recently Solved Complaints</h1>
+    <div id="complaints-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="firebase-client.js"></script>
+    <script>
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (!user) {
+                window.location.href = 'admin-login.html';
+            } else {
+                loadSolvedComplaints();
+            }
+        });
+
+        function loadSolvedComplaints() {
+            const complaintsContainer = document.getElementById('complaints-container');
+            // Use onSnapshot for real-time updates
+            db.collection("complaints")
+                .where("status", "==", "solved")
+                .orderBy("timestamp", "desc")
+                .onSnapshot((querySnapshot) => {
+                    complaintsContainer.innerHTML = ""; // Clear existing content
+                    if (querySnapshot.empty) {
+                        complaintsContainer.innerHTML = "<p>No solved complaints found.</p>";
+                        return;
+                    }
+                    querySnapshot.forEach((doc) => {
+                        const complaint = doc.data();
+                        const complaintCard = `
+                        <div class="complaint-card">
+                            <h3>${complaint.category}</h3>
+                            <p>${complaint.description}</p>
+                            <img src="${complaint.imageUrl}" alt="Complaint Image">
+                            <p><strong>Location:</strong> ${complaint.location}</p>
+                            <p><strong>Status:</strong> <span class="status-solved">Solved ✅</span></p>
+                        </div>
+                    `;
+                        complaintsContainer.innerHTML += complaintCard;
+                    });
+                }, (error) => {
+                    console.error("Error getting documents: ", error);
+                    // Handle index requirement error gracefully if possible, or log it
+                    if (error.code === 'failed-precondition') {
+                        console.log("Index required. Check console for link.");
+                    }
+                });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Complaint Resolution Stats</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1e8053;
+      --orange: #ff9800;
+      --orange-dark: #e68900;
+      --bg: #f5faf7;
+      --card-bg: #ffffff;
+      --text-color: #1a335e;
+      --muted-text: #5a7d6f;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+    }
+
+    h1 {
+      color: var(--green-700);
+      margin-bottom: 40px;
+      font-weight: 800;
+      font-size: 2.2rem;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .charts-container {
+      width: 100%;
+      max-width: 950px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px 50px;
+      align-items: start;
+      padding: 0 10px;
+    }
+
+    .chart-box {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 26px 22px;
+      box-shadow: 0 4px 18px rgba(25, 116, 74, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .chart-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 24px rgba(25, 116, 74, 0.2);
+    }
+
+    .chart-box canvas {
+      max-width: 100%;
+    }
+
+    .chart-title {
+      font-weight: 700;
+      margin-bottom: 18px;
+      font-size: 1.25rem;
+      color: var(--green-600);
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 720px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Complaint Resolution Statistics</h1>
+  <div class="charts-container">
+    <!-- Pie Chart -->
+    <div class="chart-box">
+      <div class="chart-title">Solved vs Pending Complaints</div>
+      <canvas id="pieChart"></canvas>
+    </div>
+    <!-- Bar Chart -->
+    <div class="chart-box" style="grid-column: span 2;">
+      <div class="chart-title">Complaints by Category</div>
+      <canvas id="barChart"></canvas>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        loadStats();
+      }
+    });
+
+    async function loadStats() {
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      const barCtx = document.getElementById('barChart').getContext('2d');
+
+      // Use onSnapshot for real-time updates
+      db.collection("complaints").onSnapshot((querySnapshot) => {
+        let solvedCount = 0;
+        let pendingCount = 0;
+        const categories = {};
+
+        querySnapshot.forEach(doc => {
+          const complaint = doc.data();
+
+          // Count for pie chart
+          if (complaint.status === 'solved') {
+            solvedCount++;
+          } else {
+            pendingCount++;
+          }
+
+          // Count for bar chart
+          if (!categories[complaint.category]) {
+            categories[complaint.category] = { solved: 0, pending: 0 };
+          }
+          if (complaint.status === 'solved') {
+            categories[complaint.category].solved++;
+          } else {
+            categories[complaint.category].pending++;
+          }
+        });
+
+        // Destroy old charts if they exist to prevent overlap/memory leaks
+        if (window.myPieChart) window.myPieChart.destroy();
+        if (window.myBarChart) window.myBarChart.destroy();
+
+        window.myPieChart = renderPieChart(pieCtx, solvedCount, pendingCount);
+        window.myBarChart = renderBarChart(barCtx, categories);
+
+      }, (error) => {
+        console.error("Error fetching complaints for stats: ", error);
+      });
+    }
+
+    function renderPieChart(ctx, solved, pending) {
+      return new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Solved', 'Pending'],
+          datasets: [{
+            data: [solved, pending],
+            backgroundColor: ['#4caf50', '#ff9800'],
+            hoverOffset: 30,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          animation: {
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeOutBounce'
+          },
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    function renderBarChart(ctx, categories) {
+      const labels = Object.keys(categories);
+      const solvedData = labels.map(label => categories[label].solved);
+      const pendingData = labels.map(label => categories[label].pending);
+
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Solved Complaints',
+              data: solvedData,
+              backgroundColor: '#4caf50'
+            },
+            {
+              label: 'Pending Complaints',
+              data: pendingData,
+              backgroundColor: '#ff9800'
+            }
+          ]
+        },
+        options: {
+          animation: {
+            duration: 1800,
+            easing: 'easeOutQuart'
+          },
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#19744a' }
+            },
+            x: {
+              ticks: { color: '#19744a' }
+            }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { color: '#19744a' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

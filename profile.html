@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile - Civic Engagement</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --orange: #ff9800;
+      --bg-orange: #ff9800;
+      --bg-green: #4caf50;
+      --white: #fff;
+      --muted: #888;
+      --red: #f44336;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, var(--bg-orange), var(--bg-green));
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    /* Moving overlay */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.18);
+      transform: rotate(25deg);
+      animation: moveOverlay 12s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes moveOverlay {
+      0% {
+        transform: translateX(-80%) rotate(25deg);
+      }
+
+      100% {
+        transform: translateX(80%) rotate(25deg);
+      }
+    }
+
+    .profile-card {
+      position: relative;
+      z-index: 1;
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 3px 20px rgba(25, 116, 74, 0.15);
+      padding: 36px 28px;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    label {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      color: var(--green-700);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s;
+      color: var(--green-700);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--orange);
+      outline: none;
+    }
+
+    .readonly-field {
+      background: #f1f1f1;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    button {
+      background: var(--red);
+      border: none;
+      padding: 14px 0;
+      width: 100%;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #d32f2f;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background-overlay"></div>
+
+  <div class="profile-card">
+    <h2>Your Profile</h2>
+
+    <label for="fullname">Full Name</label>
+    <input type="text" id="fullname" name="fullname" readonly class="readonly-field" />
+
+    <label for="email">Email Address</label>
+    <input type="text" id="email" name="email" readonly class="readonly-field" />
+
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    const fullnameInput = document.getElementById('fullname');
+    const emailInput = document.getElementById('email');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        // User is signed in.
+        db.collection("users").doc(user.uid).get().then((doc) => {
+          if (doc.exists) {
+            const userData = doc.data();
+            fullnameInput.value = userData.fullname;
+            emailInput.value = userData.email;
+          } else {
+            console.log("No such document!");
+          }
+        }).catch((error) => {
+          console.log("Error getting document:", error);
+        });
+      } else {
+        // No user is signed in.
+        window.location.href = 'login.html';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      firebase.auth().signOut().then(() => {
+        // Sign-out successful.
+        window.location.href = 'login.html';
+      }).catch((error) => {
+        // An error happened.
+        console.error("Logout Error:", error);
+      });
+    });
+  </script>
+</body>
+
+</html>

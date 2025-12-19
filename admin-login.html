@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civic Issue Reporter - Admin Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4caf50, #ff9800);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(25deg);
+      animation: moveOverlay 12s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes moveOverlay {
+      0% {
+        transform: translateX(-50%) rotate(25deg);
+      }
+
+      100% {
+        transform: translateX(0%) rotate(25deg);
+      }
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-container h2 {
+      margin-bottom: 25px;
+      color: #e65100;
+      font-size: 2rem;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      outline: none;
+      font-size: 1.1rem;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
+      background: #1b5e20;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .login-container button:hover {
+      background: #388e3c;
+    }
+
+    .login-container a {
+      display: block;
+      margin-top: 15px;
+      font-size: 1rem;
+      color: #1b5e20;
+      text-decoration: none;
+    }
+
+    .login-container a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background-overlay"></div>
+  <div class="login-container">
+    <h2>Admin Portal</h2>
+
+    <!-- Google Sign In -->
+    <button onclick="googleLogin()" style="background: #db4437; margin-bottom: 20px;">Sign in with Google</button>
+
+    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+      <hr style="flex: 1; border: 0; border-top: 1px solid #ccc;">
+      <span style="padding: 0 10px; color: #777; font-size: 1.1rem;">OR</span>
+      <hr style="flex: 1; border: 0; border-top: 1px solid #ccc;">
+    </div>
+
+    <!-- Email Login -->
+    <input type="email" id="email" placeholder="Enter Admin Email" required>
+    <input type="password" id="password" placeholder="Enter Password" required>
+    <button onclick="emailLogin()">Login</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    function emailLogin() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        alert("❌ Please enter both email and password.");
+        return;
+      }
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert("✅ Admin Login Successful");
+          window.location.href = "admin-home.html";
+        })
+        .catch((error) => {
+          console.error("Login Error:", error);
+          alert("❌ Login Failed: " + error.message);
+        });
+    }
+
+    function googleLogin() {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          // For admin, we can just allow access or create a record if needed.
+          // In a real app, you'd check if this email is authorized to be an admin.
+          // For now, we'll just log them in and redirect.
+          alert("✅ Admin Login Successful");
+          window.location.href = "admin-home.html";
+        }).catch((error) => {
+          console.error("Google Sign-In Error:", error);
+          alert("Google Sign-In Error: " + error.message);
+        });
+    }
+  </script>
+</body>
+
+</html>

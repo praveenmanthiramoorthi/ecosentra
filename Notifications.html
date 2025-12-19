@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notifications - Civic Engagement</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --orange: #ff9800;
+      --bg: #f7f9fa;
+      --muted-text: #6c7a85;
+      --card-bg: #ffffff;
+      --solved-bg: #e7f7ec;
+      --pending-bg: #fff5e6;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--green-700);
+      padding: 24px 16px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: var(--orange);
+      font-weight: 700;
+      margin-bottom: 24px;
+      font-size: 2rem;
+    }
+    .notification-list {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .notification {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .notification.solved {
+      background: var(--solved-bg);
+    }
+    .notification.pending {
+      background: var(--pending-bg);
+    }
+    .icon {
+      font-size: 1.5rem;
+      margin-right: 18px;
+    }
+    .notification-content {
+      flex: 1;
+    }
+    .notification-message {
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0 6px 0;
+    }
+    .notification-time {
+      font-size: 0.85rem;
+      color: var(--muted-text);
+    }
+  </style>
+</head>
+<body>
+  <h1>Notifications</h1>
+  <section class="notification-list" id="notification-list" role="list" aria-label="User notifications">
+    <!-- Notifications will be loaded here dynamically -->
+  </section>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    const notificationList = document.getElementById('notification-list');
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        loadUserNotifications(user.uid);
+      } else {
+        // Redirect to login page if user is not authenticated
+        window.location.href = 'login.html';
+      }
+    });
+
+    function loadUserNotifications(userId) {
+      // Use onSnapshot for real-time updates
+      db.collection("complaints").where("userId", "==", userId)
+        .orderBy("timestamp", "desc")
+        .onSnapshot((querySnapshot) => {
+          // Clear the list every time there's an update
+          notificationList.innerHTML = '';
+
+          if (querySnapshot.empty) {
+            notificationList.innerHTML = '<p style="text-align: center;">You have no notifications.</p>';
+            return;
+          }
+
+          querySnapshot.forEach((doc) => {
+            const complaint = doc.data();
+            // Basic validation for complaint data
+            if (complaint && complaint.category && complaint.status && complaint.timestamp) {
+              const card = createNotificationCard(complaint);
+              notificationList.appendChild(card);
+            }
+          });
+        }, (error) => {
+          // This function is called if the listener fails
+          console.error("Error fetching user notifications: ", error);
+          notificationList.innerHTML = '<p style="text-align: center; color: red;">Error loading notifications. Please try again later.</p>';
+        });
+    }
+
+    function createNotificationCard(complaint) {
+      const card = document.createElement('article');
+      const statusClass = complaint.status.toLowerCase(); // 'solved' or 'pending'
+      const icon = statusClass === 'solved' ? '✅' : '⏳';
+      const message = `Your complaint about "<strong>${complaint.category}</strong>" has been <strong>${statusClass}</strong>.`;
+      
+      let formattedTime = 'Date not available';
+      // Robustly check for the timestamp and the toDate method
+      if (complaint.timestamp && typeof complaint.timestamp.toDate === 'function') {
+        const complaintDate = complaint.timestamp.toDate();
+        formattedTime = complaintDate.toLocaleString();
+      }
+
+      card.className = `notification ${statusClass}`;
+      card.setAttribute('role', 'listitem');
+
+      card.innerHTML = `
+        <div class="icon" aria-hidden="true">${icon}</div>
+        <div class="notification-content">
+          <p class="notification-message">${message}</p>
+          <time class="notification-time">${formattedTime}</time>
+        </div>
+      `;
+      return card;
+    }
+  </script>
+</body>
+</html>

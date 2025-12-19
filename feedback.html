@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feedback Form - Civic Engagement</title>
+  <style>
+    :root {
+      --green-700: #19744a;
+      --green-600: #1a8357;
+      --orange: #ff9800;
+      --bg: #f7f9fa;
+      --input-bg: #fff;
+      --border-color: #c4d7c3;
+      --text-color: #14553a;
+      --text-muted: #5a7d6f;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--green-700);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    form {
+      background: var(--input-bg);
+      border-radius: 16px;
+      box-shadow: 0 3px 20px rgba(25,116,74,0.1);
+      padding: 30px 28px;
+      max-width: 500px;
+      width: 100%;
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    select, textarea {
+      width: 100%;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--green-700);
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+    }
+    select:focus, textarea:focus {
+      border-color: var(--orange);
+      outline: none;
+    }
+    button {
+      background: var(--orange);
+      border: none;
+      padding: 14px 0;
+      width: 100%;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background: #e68900;
+    }
+    .note {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: -10px;
+      margin-bottom: 18px;
+      font-style: italic;
+      text-align: center;
+    }
+    *, *::before, *::after {
+  box-sizing: border-box;
+}
+  </style>
+</head>
+<body>
+  <form id="feedback-form" aria-label="User feedback form">
+    <h2>Feedback & Suggestions</h2>
+
+    <label for="category">Select Feedback Category:</label>
+    <select id="category" name="category" required aria-required="true" aria-describedby="categoryHelp">
+      <option value="" disabled selected>Select a category</option>
+      <option value="No proper response">No proper response to complaint</option>
+      <option value="Delay">Delay in resolution</option>
+      <option value="Website issues">Website is not useful or has issues</option>
+      <option value="Suggestions">Ideas or changes to be implemented</option>
+      <option value="Other">Other</option>
+    </select>
+    <div id="categoryHelp" class="note">Choose a category that best fits your feedback.</div>
+
+    <label for="feedback-text">Please provide your detailed feedback:</label>
+    <textarea id="feedback-text" name="feedback-text" rows="6" placeholder="Write your feedback here..." required aria-required="true"></textarea>
+
+    <button type="submit">Submit Feedback</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script src="firebase-client.js"></script>
+
+  <script>
+    const form = document.getElementById('feedback-form');
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        // If the user is not logged in, redirect them to the login page
+        window.location.href = 'login.html';
+      }
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const category = form.category.value;
+      const feedbackText = form['feedback-text'].value.trim();
+      const user = firebase.auth().currentUser;
+
+      if (!category) {
+        alert('Please select a feedback category.');
+        return;
+      }
+      if (!feedbackText) {
+        alert('Please provide your feedback in the text area.');
+        return;
+      }
+      if (!user) {
+        alert('You must be logged in to submit feedback.');
+        return;
+      }
+
+      // Add feedback to Firestore
+      db.collection("feedback").add({
+        userId: user.uid,
+        category: category,
+        feedbackText: feedbackText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        alert('Thank you for your feedback!');
+        form.reset();
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error);
+        alert('There was an error submitting your feedback. Please try again.');
+      });
+    });
+  </script>
+</body>
+</html>
