@@ -21,7 +21,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.use(express.static(__dirname));
+app.use('/img', express.static(__dirname + '/img'));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -70,3 +70,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
